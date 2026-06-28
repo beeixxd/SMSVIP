@@ -1,0 +1,45 @@
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <objc/runtime.h>
+
+static BOOL (*orig_isVip)(id self, SEL _cmd);
+static BOOL new_isVip(id self, SEL _cmd) {
+    return YES;
+}
+
+static BOOL (*orig_isSvip)(id self, SEL _cmd);
+static BOOL new_isSvip(id self, SEL _cmd) {
+    return YES;
+}
+
+static NSInteger (*orig_vipType)(id self, SEL _cmd);
+static NSInteger new_vipType(id self, SEL _cmd) {
+    return 2;
+}
+
+static id (*orig_vipExpireTime)(id self, SEL _cmd);
+static id new_vipExpireTime(id self, SEL _cmd) {
+    return @(4070880000);
+}
+
+__attribute__((constructor)) static void initializePlugin() {
+    Class targetClass = objc_getClass("SodaUserModel");
+    if (targetClass) {
+        Method method_isVip = class_getInstanceMethod(targetClass, sel_registerName("isVip"));
+        if (method_isVip) {
+            orig_isVip = (BOOL(*)(id, SEL))method_setImplementation(method_isVip, (IMP)new_isVip);
+        }
+        Method method_isSvip = class_getInstanceMethod(targetClass, sel_registerName("isSvip"));
+        if (method_isSvip) {
+            orig_isSvip = (BOOL(*)(id, SEL))method_setImplementation(method_isSvip, (IMP)new_isSvip);
+        }
+        Method method_vipType = class_getInstanceMethod(targetClass, sel_registerName("vipType"));
+        if (method_vipType) {
+            orig_vipType = (NSInteger(*)(id, SEL))method_setImplementation(method_vipType, (IMP)new_vipType);
+        }
+        Method method_vipExpireTime = class_getInstanceMethod(targetClass, sel_registerName("vipExpireTime"));
+        if (method_vipExpireTime) {
+            orig_vipExpireTime = (id(*)(id, SEL))method_setImplementation(method_vipExpireTime, (IMP)new_vipExpireTime);
+        }
+    }
+}
